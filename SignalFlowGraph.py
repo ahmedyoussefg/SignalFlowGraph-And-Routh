@@ -232,7 +232,7 @@ class SignalFlowGraph:
         sign = 1  
         temp_array = []
         temp_loop_array = []
-        
+        non_touching_loops = 1
         
         self.get_all_non_touching_loops()
         if self.all_non_touching_loops == []:
@@ -249,7 +249,8 @@ class SignalFlowGraph:
                         temp_array.append(sublist) 
                 if len(temp_array) != 0:
                     for i in temp_array:
-                        delta += sign * self.calculate_gain(i)
+                        non_touching_loops = non_touching_loops * self.calculate_gain(i)
+                    delta += sign * non_touching_loops       
                 
             sign *= -1          
         
