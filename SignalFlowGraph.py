@@ -18,6 +18,10 @@ class SignalFlowGraph:
 
         # forward path gains
         self.forward_path_gains=[]
+        
+        # deltaI for each forward path
+        self.delta_forward_paths=[]
+        
 
         # combinations of n non touching loops
         self.all_non_touching_loops = []
@@ -203,6 +207,67 @@ class SignalFlowGraph:
             sign*=-1
         self.overall_delta=delta
         return delta
+    
+    
+    
+    
+    def calculate_paths_delta(self):
+        self.delta_forward_paths=[]
+        for forward in self.forward_paths:
+            self.delta_forward_paths.append(self.calculate_delta_for_each_path(forward))
+        return self.delta_forward_paths
+    
+    
+    def calculate_delta_for_each_path(self, path):
+        delta = 1
+        
+        temp_array = []
+        for sublist in self.loops:
+            if not any(element in path for element in sublist):
+                temp_array.append(sublist)
+        if len(temp_array) != 0:
+            for loop in temp_array:
+                delta -= self.calculate_gain(loop)
+        
+        sign = 1  
+        temp_array = []
+        temp_loop_array = []
+        
+        
+        self.get_all_non_touching_loops()
+        if self.all_non_touching_loops == []:
+            self.get_all_non_touching_loops()
+        
+        
+        for list_of_loops in all_non_touching_loops:
+
+            for loops in list_of_loops:
+                for loop in loops:
+                    temp_loop_array.append(sfg.loops[loop])
+                for sublist in temp_loop_array:
+                     if not any(element in path for element in sublist):
+                        temp_array.append(sublist) 
+                if len(temp_array) != 0:
+                    for i in temp_array:
+                        delta += sign * self.calculate_gain(i)
+                
+            sign *= -1          
+        
+        return delta                
+                         
+
+    
+              
+              
+              
+                
+            
+       
+        
+            
+            
+            
+    
 # Example usage
 # graph = {
 #     1: [(2, 3.5)],  # Edge from 1 to 2 with gain 3.5
@@ -223,7 +288,7 @@ class SignalFlowGraph:
 #     8: []
 # }
 graph = { 
-    1: [(2, 1)],  
+    1: [(2, 1), (6 , 4)],  
     2: [(3,2),(5,5)],  
     3: [(4,3),(2,-1)],
     4: [(5,4),(3,-1)],
@@ -264,3 +329,5 @@ for list_of_loops in all_non_touching_loops:
     print("----")
 
 print("Overall Delta:", sfg.calculate_overall_delta())
+
+print("Paths Delta:", sfg.calculate_paths_delta())  
