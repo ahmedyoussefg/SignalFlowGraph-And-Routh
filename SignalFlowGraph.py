@@ -1,3 +1,5 @@
+from itertools import combinations
+
 class SignalFlowGraph:
     def __init__(self, graph):
         # Adjacency List of the Graph
@@ -5,11 +7,13 @@ class SignalFlowGraph:
 
         self.number_of_nodes = len(graph)
         # forward paths node labels (integers)
-        self.forwardPaths = []
+        self.forward_paths = []
+
         # individual loops node labels
         self.loops = []
+
         # combinations of n non touching loops
-        self.nonTouchingLoops = []
+        self.all_non_touching_loops = []
         
         self.visited = [False] * (self.number_of_nodes+1) #onebased
 
@@ -34,12 +38,10 @@ class SignalFlowGraph:
             if not self.visited[node]:
                 # print("Starting DFS from node", node)
                 self.dfs(node, node, [])
-                self.visited = [False] * (self.number_of_nodes+1) #onebased
         return self.loops
     
     # node: current node, start: starting node of the cycle
     def dfs(self, node, start, path):
-        self.visited[node]=True
         path.append(node)
         # print("At node", node, "with path", path)
         for branch in self.graph[node]:
@@ -60,21 +62,61 @@ class SignalFlowGraph:
 
                 if not skip:
                     self.loops.append(path + [start] )
-            elif not self.visited[child]:
+            elif child not in path:
                 self.dfs(child,start, path[:])
 
+    def get_all_non_touching_loops(self):
+        for n in range(2, len(self.loops) + 1):
+            combs = self.get_N_non_touching_loops(n)
+            if combs == []: # no more non touching loops, break;
+                break
+            # print(combs)
+            self.all_non_touching_loops.append(combs)
+        
+        return self.all_non_touching_loops
+
+    def get_N_non_touching_loops(self, n):
+        non_touching_combinations = []
+        combs=combinations(self.loops, n)
+        for combination in combs:
+            if self.are_non_touching(combination):
+                nontouchingloops=list(combination)
+                nontouchingindices=[]
+                for loop in nontouchingloops:
+                    nontouchingindices.append(self.loops.index(loop))
+                non_touching_combinations.append(nontouchingindices)
+        return non_touching_combinations
+
+    def are_non_touching(self, combination):
+        for i in range(len(combination)):
+            for j in range(i + 1, len(combination)):
+                if self.do_touch(combination[i], combination[j]):
+                    return False
+        return True
+
+    def do_touch(self, loop1, loop2):
+        return any(vertex in loop2 for vertex in loop1)
 
 
 # Example usage
+# graph = {
+#     1: [(2, 3.5)],  # Edge from 1 to 2 with gain 3.5
+#     2: [(3, 2)],  # Edge from 2 to 3 with gain 2
+#     3: [(2, 1.5), (4, 1), (5, 0.5)],
+#     4: [(5, 4)],  # Edge from 4 to 5 with gain 4
+#     5: [(3, 0.25), (4, 3.5), (5, 1.5), (6, 2.5)], 
+#     6: []  # No outgoing edges from 6
+# }
 graph = {
-    1: [(2, 3.5)],  # Edge from 1 to 2 with gain 3.5
-    2: [(3, 2)],  # Edge from 2 to 3 with gain 2
-    3: [(2, 1.5), (4, 1), (5, 0.5)],
-    4: [(5, 4)],  # Edge from 4 to 5 with gain 4
-    5: [(3, 0.25), (4, 3.5), (5, 1.5), (6, 2.5)], 
-    6: []  # No outgoing edges from 6
+    1: [(2, 1)],  
+    2: [(4, 1.5),(3,3.2)],  
+    3: [(4,0.1),(2,4.3)],
+    4: [(3,0.5),(5,5)],  
+    5: [(4,1.25),(6,2),(7,3)], 
+    6: [(7,4.5),(5,1)], 
+    7: [(6,1.2),(7,3),(8,1.3),(2,1.5)],
+    8: []
 }
-
 # Multi edges example
 # graph = {
 #     1: [(2, 3.5), (2, 7.5), (3, 5)], 
@@ -83,6 +125,17 @@ graph = {
 # }
 
 sfg = SignalFlowGraph(graph)
-print("Graph: ", sfg.graph)
+print("Graph:\n ", sfg.graph, "\n")
 loops = sfg.find_loops()
-print("Individual Loops:", loops)
+print("Individual Loops:", loops, "\n\n")
+all_non_touching_loops=sfg.get_all_non_touching_loops()
+
+counter = 2
+for list_of_loops in all_non_touching_loops:
+    print(f"All {counter} Non-touching loops:")
+    counter+=1
+    for loops in list_of_loops:
+        for loop in loops:
+            print(sfg.loops[loop])
+        print(",")
+    print("----")
