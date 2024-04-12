@@ -254,7 +254,19 @@ class SignalFlowGraph:
             non_touching_loops = 1    
             sign *= -1          
         
-        return delta                
+        return delta   
+    
+    
+    def calculate_overall_transfer_function(self):
+        C = 0
+        if self.forward_path_gains == []:
+            self.calculate_forward_path_gains()
+        for i in range(len(self.forward_paths)):
+            C += self.forward_path_gains[i] * self.delta_forward_paths[i]
+        R = self.calculate_overall_delta()
+        
+        return C / R
+                             
                          
 
     
@@ -331,4 +343,9 @@ for list_of_loops in all_non_touching_loops:
 
 print("Overall Delta:", sfg.calculate_overall_delta())
 
-print("Paths Delta:", sfg.calculate_paths_delta())  
+print("Paths Delta:", sfg.calculate_paths_delta())
+sfg.calculate_forward_path_gains()
+print("Forward Path Gains:", sfg.forward_path_gains)
+print("Overall Transfer Function:", sfg.calculate_overall_transfer_function())
+
+
