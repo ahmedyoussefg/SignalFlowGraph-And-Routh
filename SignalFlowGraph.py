@@ -251,7 +251,7 @@ class SignalFlowGraph:
                     for i in temp_array:
                         non_touching_loops = non_touching_loops * self.calculate_gain(i)
                     delta += sign * non_touching_loops       
-                
+            non_touching_loops = 1    
             sign *= -1          
         
         return delta                
