@@ -243,7 +243,7 @@ class SignalFlowGraph:
 
             for loops in list_of_loops:
                 for loop in loops:
-                    temp_loop_array.append(sfg.loops[loop])
+                    temp_loop_array.append(self.loops[loop])
                 for sublist in temp_loop_array:
                      if not any(element in path for element in sublist):
                         temp_array.append(sublist) 
