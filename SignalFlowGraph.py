@@ -12,6 +12,12 @@ class SignalFlowGraph:
 
         # individual loops node labels
         self.loops = []
+        
+        # individual loop gains
+        self.loop_gains=[]
+
+        # forward path gains
+        self.forward_path_gains=[]
 
         # combinations of n non touching loops
         self.all_non_touching_loops = []
@@ -20,6 +26,9 @@ class SignalFlowGraph:
 
         self.input_node=None
         self.output_node=None
+
+        self.overall_delta=None
+        self.path_delta=[]
 
         # simplify multi edges
         self.simplify_graph()
@@ -74,6 +83,8 @@ class SignalFlowGraph:
     def get_all_non_touching_loops(self):
         if self.all_non_touching_loops != []:
             return self.all_non_touching_loops
+        if self.loops == []:
+            self.find_loops()
         for n in range(2, len(self.loops) + 1):
             combs = self.get_N_non_touching_loops(n)
             if combs == []: # no more non touching loops, break;
@@ -149,7 +160,49 @@ class SignalFlowGraph:
                     self.dfs_forward_paths(child, end, path)
         path.pop()  # Backtrack
         self.visited[node] = False  # Reset visited status for current node to explore other paths
+    
+    def calculate_gain(self, list):
+        gain=1
+        for i in range(len(list)-1):
+            for edge in self.graph[list[i]]:
+                if edge[0]==list[i+1]:
+                    gain*=edge[1]
+                    break
+        return gain
+    
+    def calculate_loop_gains(self):
+        for loop in self.loops:
+            self.loop_gains.append(self.calculate_gain(loop))
         
+    def calculate_forward_path_gains(self):
+        for forward in self.forward_paths:
+            self.forward_path_gains.append(self.calculate_gain(forward))
+    
+    def calculate_overall_delta(self):
+        if self.overall_delta != None:
+            return self.overall_delta
+        if self.loop_gains == []:
+            self.calculate_loop_gains()
+
+        delta=1
+        for i in range(len(self.loops)):
+            delta-=self.loop_gains[i]
+
+        sign = 1
+        if self.all_non_touching_loops == []:
+            self.get_all_non_touching_loops()
+            
+        for list_of_loops in all_non_touching_loops: # FOR EACH N
+            curr=0
+            for loops in list_of_loops: # LIST OF LIST OF LOOPS ( N NON TOUCHING )
+                curr_non_touching=1
+                for loop in loops: # LIST OF LOOPS (NON TOUCHING)
+                    curr_non_touching*=self.loop_gains[loop] # LOOP
+                curr+=curr_non_touching
+            delta += sign*curr
+            sign*=-1
+        self.overall_delta=delta
+        return delta
 # Example usage
 # graph = {
 #     1: [(2, 3.5)],  # Edge from 1 to 2 with gain 3.5
@@ -159,15 +212,23 @@ class SignalFlowGraph:
 #     5: [(3, 0.25), (4, 3.5), (5, 1.5), (6, 2.5)], 
 #     6: []  # No outgoing edges from 6
 # }
-graph = {
+# graph = {
+#     1: [(2, 1)],  
+#     2: [(4, 1.5),(3,3.2)],  
+#     3: [(4,0.1),(2,4.3)],
+#     4: [(3,0.5),(5,5)],  
+#     5: [(4,1.25),(6,2),(7,3)], 
+#     6: [(7,4.5),(5,1)], 
+#     7: [(6,1.2),(7,3),(8,1.3),(2,1.5)],
+#     8: []
+# }
+graph = { 
     1: [(2, 1)],  
-    2: [(4, 1.5),(3,3.2)],  
-    3: [(4,0.1),(2,4.3)],
-    4: [(3,0.5),(5,5)],  
-    5: [(4,1.25),(6,2),(7,3)], 
-    6: [(7,4.5),(5,1)], 
-    7: [(6,1.2),(7,3),(8,1.3),(2,1.5)],
-    8: []
+    2: [(3,2),(5,5)],  
+    3: [(4,3),(2,-1)],
+    4: [(5,4),(3,-1)],
+    5: [(4,-1),(6,1)],
+    6: []
 }
 # Multi edges example
 # graph = {
@@ -181,7 +242,15 @@ print("Graph:\n ", sfg.graph, "\n")
 loops = sfg.find_loops()
 forward_paths = sfg.get_forward_paths()    
 print("Forward Paths:", forward_paths)
+# Finding Forward Paths Gains
+for forward in forward_paths:
+    print("Gain:", sfg.calculate_gain(forward))
+    print("----")
 print("Individual Loops:", loops, "\n\n")
+# Finding Individual Loops Gains
+for loop in loops:
+    print("Gain:", sfg.calculate_gain(loop))
+    print("----")
 all_non_touching_loops=sfg.get_all_non_touching_loops()
 
 counter = 2
@@ -193,3 +262,5 @@ for list_of_loops in all_non_touching_loops:
             print(sfg.loops[loop])
         print(",")
     print("----")
+
+print("Overall Delta:", sfg.calculate_overall_delta())
