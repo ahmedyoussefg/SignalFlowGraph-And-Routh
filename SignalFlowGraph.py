@@ -6,6 +6,7 @@ class SignalFlowGraph:
         self.graph = graph
 
         self.number_of_nodes = len(graph)
+        
         # forward paths node labels (integers)
         self.forward_paths = []
 
@@ -16,6 +17,9 @@ class SignalFlowGraph:
         self.all_non_touching_loops = []
         
         self.visited = [False] * (self.number_of_nodes+1) #onebased
+
+        self.input_node=None
+        self.output_node=None
 
         # simplify multi edges
         self.simplify_graph()
@@ -34,6 +38,8 @@ class SignalFlowGraph:
             self.graph[node] = [(dest, gain) for dest, gain in edges_dict.items()]
 
     def find_loops(self):
+        if self.loops != []:
+            return self.loops
         for node in range(1,self.number_of_nodes+1):
             if not self.visited[node]:
                 # print("Starting DFS from node", node)
@@ -66,6 +72,8 @@ class SignalFlowGraph:
                 self.dfs_for_loops(child,start, path[:])
 
     def get_all_non_touching_loops(self):
+        if self.all_non_touching_loops != []:
+            return self.all_non_touching_loops
         for n in range(2, len(self.loops) + 1):
             combs = self.get_N_non_touching_loops(n)
             if combs == []: # no more non touching loops, break;
@@ -97,16 +105,43 @@ class SignalFlowGraph:
     def do_touch(self, loop1, loop2):
         return any(vertex in loop2 for vertex in loop1)
 
+    def find_input_node(self):
+        if self.input_node != None:
+            return self.input_node
+        indegree=[0]*(self.number_of_nodes+1)
+        for node in self.graph: # Assuming there is only one input node
+            for edge in self.graph[node]:
+                indegree[edge[0]]+=1
+
+        for node in range(1,self.number_of_nodes+1):    
+            if indegree[node]==0:
+                return node
+    
+    def find_output_node(self):
+        if self.output_node != None:
+            return self.output_node
+        for node in self.graph: # Assuming there is only one output node
+            if self.graph[node] == []:
+                return node
+
+    def get_forward_paths(self):
+        if self.forward_paths != []:
+            return self.forward_paths
+        
+        self.input_node=self.find_input_node()
+        self.output_node=self.find_output_node()
+        return self.find_forward_paths(self.input_node, self.output_node)
+
     def find_forward_paths(self, start, end):
-        self.forwardPaths = []  # Reset forwardPaths list
+        self.forward_paths = []
         self.dfs_forward_paths(start, end, [])
-        return self.forwardPaths
+        return self.forward_paths
     
     def dfs_forward_paths(self, node, end, path):
         self.visited[node] = True
         path.append(node)
         if node == end:
-            self.forwardPaths.append(path[:])
+            self.forward_paths.append(path[:])
         else:
             for branch in self.graph[node]:
                 child = branch[0]
@@ -144,7 +179,7 @@ graph = {
 sfg = SignalFlowGraph(graph)
 print("Graph:\n ", sfg.graph, "\n")
 loops = sfg.find_loops()
-forward_paths = sfg.find_forward_paths(1, 8)    
+forward_paths = sfg.get_forward_paths()    
 print("Forward Paths:", forward_paths)
 print("Individual Loops:", loops, "\n\n")
 all_non_touching_loops=sfg.get_all_non_touching_loops()
