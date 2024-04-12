@@ -37,11 +37,11 @@ class SignalFlowGraph:
         for node in range(1,self.number_of_nodes+1):
             if not self.visited[node]:
                 # print("Starting DFS from node", node)
-                self.dfs(node, node, [])
+                self.dfs_for_loops(node, node, [])
         return self.loops
     
     # node: current node, start: starting node of the cycle
-    def dfs(self, node, start, path):
+    def dfs_for_loops(self, node, start, path):
         path.append(node)
         # print("At node", node, "with path", path)
         for branch in self.graph[node]:
@@ -63,7 +63,7 @@ class SignalFlowGraph:
                 if not skip:
                     self.loops.append(path + [start] )
             elif child not in path:
-                self.dfs(child,start, path[:])
+                self.dfs_for_loops(child,start, path[:])
 
     def get_all_non_touching_loops(self):
         for n in range(2, len(self.loops) + 1):
@@ -97,7 +97,24 @@ class SignalFlowGraph:
     def do_touch(self, loop1, loop2):
         return any(vertex in loop2 for vertex in loop1)
 
-
+    def find_forward_paths(self, start, end):
+        self.forwardPaths = []  # Reset forwardPaths list
+        self.dfs_forward_paths(start, end, [])
+        return self.forwardPaths
+    
+    def dfs_forward_paths(self, node, end, path):
+        self.visited[node] = True
+        path.append(node)
+        if node == end:
+            self.forwardPaths.append(path[:])
+        else:
+            for branch in self.graph[node]:
+                child = branch[0]
+                if not self.visited[child]:
+                    self.dfs_forward_paths(child, end, path)
+        path.pop()  # Backtrack
+        self.visited[node] = False  # Reset visited status for current node to explore other paths
+        
 # Example usage
 # graph = {
 #     1: [(2, 3.5)],  # Edge from 1 to 2 with gain 3.5
@@ -127,6 +144,8 @@ graph = {
 sfg = SignalFlowGraph(graph)
 print("Graph:\n ", sfg.graph, "\n")
 loops = sfg.find_loops()
+forward_paths = sfg.find_forward_paths(1, 8)    
+print("Forward Paths:", forward_paths)
 print("Individual Loops:", loops, "\n\n")
 all_non_touching_loops=sfg.get_all_non_touching_loops()
 
