@@ -346,8 +346,6 @@ graph = {
     6: [(3,1),(5,-1),(7,1)],
     7: [(2,-1)]
 }
-    # // 2 5 6 3 4 7
-
 # Multi edges example
 # graph = {
 #     1: [(2, 3.5), (2, 7.5), (3, 5)], 
@@ -355,7 +353,7 @@ graph = {
 #     3: [(2, 1.5), (1, 1), (3, 0.5)],
 # }
 
-sfg = SignalFlowGraph(graph)    # // 2 5 6 3 4 7
+sfg = SignalFlowGraph(graph) 
 
 print("Graph:\n ", sfg.graph, "\n")
 loops = sfg.find_loops()
