@@ -72,10 +72,8 @@ class SignalFlowGraph:
                 skip=False
                 for loop in self.loops:
                     curr = loop[:-1]
-                    curr.sort()
                     mypath=path[:]
-                    mypath.sort()
-                    if curr == mypath:
+                    if self.are_circular_arrays(curr,mypath):
                         skip=True
                         break
 
@@ -84,6 +82,19 @@ class SignalFlowGraph:
             elif child not in path:
                 self.dfs_for_loops(child,start, path[:])
 
+    def are_circular_arrays(self,arr1, arr2):
+        # Concatenate arr1 with itself
+        arr1_double = arr1 + arr1
+
+        # Convert arr2 to string for substring search
+        arr2_str = ' '.join(map(str, arr2))
+
+        # Check if arr2 is a substring of arr1_double
+        if arr2_str in ' '.join(map(str, arr1_double)):
+            return True
+        else:
+            return False
+    
     def get_all_non_touching_loops(self):
         if self.all_non_touching_loops != None:
             return self.all_non_touching_loops
@@ -132,13 +143,14 @@ class SignalFlowGraph:
         for node in range(1,self.number_of_nodes+1):    
             if indegree[node]==0:
                 return node
-    
+        return 1
     def find_output_node(self):
         if self.output_node != None:
             return self.output_node
         for node in self.graph: # Assuming there is only one output node
             if self.graph[node] == []:
                 return node
+        return self.number_of_nodes
 
     def get_forward_paths(self):
         if self.forward_paths != None:
@@ -202,7 +214,7 @@ class SignalFlowGraph:
         sign = 1
         if self.all_non_touching_loops == None:
             self.get_all_non_touching_loops()
-            
+        
         for list_of_loops in all_non_touching_loops: # FOR EACH N
             curr=0
             for loops in list_of_loops: # LIST OF LIST OF LOOPS ( N NON TOUCHING )
@@ -214,7 +226,6 @@ class SignalFlowGraph:
             sign*=-1
         self.overall_delta=delta
         return delta
-    
     
     
     
@@ -237,6 +248,8 @@ class SignalFlowGraph:
         if len(temp_array) != 0:
             for loop in temp_array:
                 delta -= self.calculate_gain(loop)
+        else:
+            return 1
         
         sign = 1  
         temp_array = []
@@ -259,7 +272,9 @@ class SignalFlowGraph:
                     for i in temp_array:
                         non_touching_loops = non_touching_loops * self.calculate_gain(i)
                     delta += sign * non_touching_loops       
-            non_touching_loops = 1    
+                non_touching_loops = 1    
+                temp_array = []
+                temp_loop_array = []
             sign *= -1          
         
         return delta   
@@ -313,14 +328,25 @@ class SignalFlowGraph:
 #     7: [(6,1.2),(7,3),(8,1.3),(2,1.5)],
 #     8: []
 # }
-graph = { 
-    1: [(2, 1), (6 , 4)],  
-    2: [(3,2),(5,5)],  
-    3: [(4,3),(2,-1)],
-    4: [(5,4),(3,-1)],
-    5: [(4,-1),(6,1)],
-    6: []
+# graph = { 
+#     1: [(2, 1), (6 , 4)],  
+#     2: [(3,2),(5,5)],  
+#     3: [(4,3),(2,-1)],
+#     4: [(5,4),(3,-1)],
+#     5: [(4,-1),(6,1)],
+#     6: []
+# }
+graph = {
+    1: [(2,1)],  
+    2: [(3,-1),(5,1)], 
+    3: [(4,53)],
+    4: [(5,-1),(7,1),(3,-1)],
+    5: [(6,-144)],
+    6: [(3,1),(5,-1),(7,1)],
+    7: [(2,-1)]
 }
+    # // 2 5 6 3 4 7
+
 # Multi edges example
 # graph = {
 #     1: [(2, 3.5), (2, 7.5), (3, 5)], 
@@ -328,7 +354,8 @@ graph = {
 #     3: [(2, 1.5), (1, 1), (3, 0.5)],
 # }
 
-sfg = SignalFlowGraph(graph)
+sfg = SignalFlowGraph(graph)    # // 2 5 6 3 4 7
+
 print("Graph:\n ", sfg.graph, "\n")
 loops = sfg.find_loops()
 forward_paths = sfg.get_forward_paths()    
