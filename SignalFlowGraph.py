@@ -264,10 +264,11 @@ class SignalFlowGraph:
 
             for loops in list_of_loops:
                 for loop in loops:
-                    temp_loop_array.append(self.loops[loop])
-                for sublist in temp_loop_array:
-                     if not any(element in path for element in sublist):
-                        temp_array.append(sublist) 
+                    temp_loop_array.append(self.loops[loop])    
+                # Check if all elements in temp_loop_array are not in path
+                all_not_in_path = all(all(element not in path for element in sublist) for sublist in temp_loop_array)
+                if all_not_in_path:
+                    temp_array.extend(temp_loop_array)
                 if len(temp_array) != 0:
                     for i in temp_array:
                         non_touching_loops = non_touching_loops * self.calculate_gain(i)
