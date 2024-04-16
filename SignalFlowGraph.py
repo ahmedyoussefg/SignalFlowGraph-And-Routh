@@ -190,16 +190,22 @@ class SignalFlowGraph:
     def calculate_loop_gains(self):
         if self.loop_gains != None:
             return self.loop_gains
+        if self.loops is None:
+            self.find_loops()
         self.loop_gains=[]
         for loop in self.loops:
             self.loop_gains.append(self.calculate_gain(loop))
+        return self.loop_gains
         
     def calculate_forward_path_gains(self):
         if self.forward_path_gains != None:
             return self.forward_path_gains
         self.forward_path_gains=[]
+        if self.forward_paths is None:
+            self.get_forward_paths()
         for forward in self.forward_paths:
             self.forward_path_gains.append(self.calculate_gain(forward))
+        return self.forward_path_gains
     
     def calculate_overall_delta(self):
         if self.overall_delta != None:
@@ -215,7 +221,7 @@ class SignalFlowGraph:
         if self.all_non_touching_loops == None:
             self.get_all_non_touching_loops()
         
-        for list_of_loops in all_non_touching_loops: # FOR EACH N
+        for list_of_loops in self.all_non_touching_loops: # FOR EACH N
             curr=0
             for loops in list_of_loops: # LIST OF LIST OF LOOPS ( N NON TOUCHING )
                 curr_non_touching=1
@@ -233,6 +239,8 @@ class SignalFlowGraph:
         if self.delta_forward_paths != None:
             return self.delta_forward_paths
         self.delta_forward_paths=[]
+        if self.forward_paths is None:
+            self.get_forward_paths()
         for forward in self.forward_paths:
             self.delta_forward_paths.append(self.calculate_delta_for_each_path(forward))
         return self.delta_forward_paths
