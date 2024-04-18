@@ -344,52 +344,53 @@ class SignalFlowGraph:
 #     5: [(4,-1),(6,1)],
 #     6: []
 # }
-graph = {
-    1: [(2,1)],  
-    2: [(3,-1),(5,1)], 
-    3: [(4,53)],
-    4: [(5,-1),(7,1),(3,-1)],
-    5: [(6,-144)],
-    6: [(3,1),(5,-1),(7,1)],
-    7: [(2,-1)]
-}
-# Multi edges example
-# graph = {
-#     1: [(2, 3.5), (2, 7.5), (3, 5)], 
-#     2: [(3, 2)], 
-#     3: [(2, 1.5), (1, 1), (3, 0.5)],
-# }
+if __name__ == '__main__':
+    graph = {
+        1: [(2,1)],  
+        2: [(3,-1),(5,1)], 
+        3: [(4,53)],
+        4: [(5,-1),(7,1),(3,-1)],
+        5: [(6,-144)],
+        6: [(3,1),(5,-1),(7,1)],
+        7: [(2,-1)]
+    }
+    # Multi edges example
+    # graph = {
+    #     1: [(2, 3.5), (2, 7.5), (3, 5)], 
+    #     2: [(3, 2)], 
+    #     3: [(2, 1.5), (1, 1), (3, 0.5)],
+    # }
 
-sfg = SignalFlowGraph(graph) 
+    sfg = SignalFlowGraph(graph) 
 
-print("Graph:\n ", sfg.graph, "\n")
-loops = sfg.find_loops()
-forward_paths = sfg.get_forward_paths()    
-print("Forward Paths:", forward_paths)
-# Finding Forward Paths Gains
-for forward in forward_paths:
-    print("Gain:", sfg.calculate_gain(forward))
-    print("----")
-print("Individual Loops:", loops, "\n\n")
-# Finding Individual Loops Gains
-for loop in loops:
-    print("Gain:", sfg.calculate_gain(loop))
-    print("----")
-all_non_touching_loops=sfg.get_all_non_touching_loops()
+    print("Graph:\n ", sfg.graph, "\n")
+    loops = sfg.find_loops()
+    forward_paths = sfg.get_forward_paths()    
+    print("Forward Paths:", forward_paths)
+    # Finding Forward Paths Gains
+    for forward in forward_paths:
+        print("Gain:", sfg.calculate_gain(forward))
+        print("----")
+    print("Individual Loops:", loops, "\n\n")
+    # Finding Individual Loops Gains
+    for loop in loops:
+        print("Gain:", sfg.calculate_gain(loop))
+        print("----")
+    all_non_touching_loops=sfg.get_all_non_touching_loops()
 
-counter = 2
-for list_of_loops in all_non_touching_loops:
-    print(f"All {counter} Non-touching loops:")
-    counter+=1
-    for loops in list_of_loops:
-        for loop in loops:
-            print(sfg.loops[loop])
-        print(",")
-    print("----")
+    counter = 2
+    for list_of_loops in all_non_touching_loops:
+        print(f"All {counter} Non-touching loops:")
+        counter+=1
+        for loops in list_of_loops:
+            for loop in loops:
+                print(sfg.loops[loop])
+            print(",")
+        print("----")
 
-print("Overall Delta:", sfg.calculate_overall_delta())
+    print("Overall Delta:", sfg.calculate_overall_delta())
 
-print("Paths Delta:", sfg.calculate_paths_delta())
-sfg.calculate_forward_path_gains()
-print("Forward Path Gains:", sfg.forward_path_gains)
-print("Overall Transfer Function:", sfg.calculate_overall_transfer_function())
+    print("Paths Delta:", sfg.calculate_paths_delta())
+    sfg.calculate_forward_path_gains()
+    print("Forward Path Gains:", sfg.forward_path_gains)
+    print("Overall Transfer Function:", sfg.calculate_overall_transfer_function())
