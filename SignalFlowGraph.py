@@ -317,7 +317,7 @@ class SignalFlowGraph:
             
             
     
-# Example usage
+# Examples
 # graph = {
 #     1: [(2, 3.5)],  # Edge from 1 to 2 with gain 3.5
 #     2: [(3, 2)],  # Edge from 2 to 3 with gain 2
@@ -344,53 +344,63 @@ class SignalFlowGraph:
 #     5: [(4,-1),(6,1)],
 #     6: []
 # }
+# Multi edges example
+# graph = {
+#     1: [(2, 3.5), (2, 7.5), (3, 5)], 
+#     2: [(3, 2)], 
+#     3: [(2, 1.5), (1, 1), (3, 0.5)],
+# }
+
 if __name__ == '__main__':
     graph = {
-        1: [(2,1)],  
-        2: [(3,-1),(5,1)], 
-        3: [(4,53)],
-        4: [(5,-1),(7,1),(3,-1)],
-        5: [(6,-144)],
-        6: [(3,1),(5,-1),(7,1)],
-        7: [(2,-1)]
+        1: [(2, 1)],  
+        2: [(3, -1), (5, 1)], 
+        3: [(4, 53)],
+        4: [(5, -1), (7, 1), (3, -1)],
+        5: [(6, -144)],
+        6: [(3, 1), (5, -1), (7, 1)],
+        7: [(2, -1)]
     }
-    # Multi edges example
-    # graph = {
-    #     1: [(2, 3.5), (2, 7.5), (3, 5)], 
-    #     2: [(3, 2)], 
-    #     3: [(2, 1.5), (1, 1), (3, 0.5)],
-    # }
 
-    sfg = SignalFlowGraph(graph) 
+    sfg = SignalFlowGraph(graph)
+    
+    # To print list of forward paths
+    print("Forward Paths:", sfg.get_forward_paths())
 
-    print("Graph:\n ", sfg.graph, "\n")
-    loops = sfg.find_loops()
-    forward_paths = sfg.get_forward_paths()    
-    print("Forward Paths:", forward_paths)
-    # Finding Forward Paths Gains
-    for forward in forward_paths:
-        print("Gain:", sfg.calculate_gain(forward))
-        print("----")
-    print("Individual Loops:", loops, "\n\n")
-    # Finding Individual Loops Gains
-    for loop in loops:
-        print("Gain:", sfg.calculate_gain(loop))
-        print("----")
+    # To print list of individual loops
+    print("Individual Loops:", sfg.find_loops())
+
+    # to print all combinations of N non-touching loops:
     all_non_touching_loops=sfg.get_all_non_touching_loops()
 
     counter = 2
-    for list_of_loops in all_non_touching_loops:
+    for list_of_loops in all_non_touching_loops: # list of 2,3,4,.... non touching loops
         print(f"All {counter} Non-touching loops:")
         counter+=1
-        for loops in list_of_loops:
+        inner_loop=0
+        for loops in list_of_loops:     # i - non touching loops
             for loop in loops:
                 print(sfg.loops[loop])
-            print(",")
-        print("----")
+            if inner_loop != len(list_of_loops) - 1:               
+                print(",")
+            inner_loop+=1
+        print("------------") # Seperator Between Different Ns (N-non touching loops)
 
-    print("Overall Delta:", sfg.calculate_overall_delta())
 
+    # To print the overall delta value (Δ)
+    print("Overall Delta:", sfg.calculate_overall_delta()) 
+
+    # To print Δ1, .... ,Δm (m is number of forward paths)
     print("Paths Delta:", sfg.calculate_paths_delta())
-    sfg.calculate_forward_path_gains()
-    print("Forward Path Gains:", sfg.forward_path_gains)
-    print("Overall Transfer Function:", sfg.calculate_overall_transfer_function())
+
+    # To print a list of individual loop GAINS
+    print("Individual Loop Gains:", sfg.calculate_loop_gains()) # This is extra output
+
+    # To print a list of forward path GAINS
+    print("Forward Path Gains:", sfg.calculate_forward_path_gains()) # This is extra output
+
+    # (you can print the input and output nodes using the below code)
+    print(f"Input Node: {sfg.input_node}, Output Node: {sfg.output_node}")
+
+    # To print the overall transfer function
+    print("Overall Transfer Function:", sfg.calculate_overall_transfer_function()) # Final Result (Most important)
