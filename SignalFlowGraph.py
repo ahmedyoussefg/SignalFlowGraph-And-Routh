@@ -26,8 +26,7 @@ class SignalFlowGraph:
         # combinations of n non touching loops
         self.all_non_touching_loops = None
         
-        self.visited = [False] * (self.number_of_nodes+1) #onebased
-
+        self.visited = {node: False for node in self.graph}
         self.input_node=None
         self.output_node=None
 
@@ -135,7 +134,7 @@ class SignalFlowGraph:
     def find_input_node(self):
         if self.input_node != None:
             return self.input_node
-        indegree=[0]*(self.number_of_nodes+1)
+        indegree={node: 0 for node in self.graph}
         for node in self.graph: # Assuming there is only one input node
             for edge in self.graph[node]:
                 indegree[edge[0]]+=1
