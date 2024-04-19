@@ -108,13 +108,14 @@ def add_node(n_clicks, node_name, elements):
 def delete_node(n_clicks, selected_nodes, elements):
     if n_clicks is None or not selected_nodes:
         raise dash.exceptions.PreventUpdate
-    node_id = selected_nodes[0]['id']
-    for element in elements:
-        if 'source' in element['data']:
-            if element['data']['source'] == node_id or element['data']['target'] == node_id:
+    for node in selected_nodes:
+        node_id = node['id']
+        for element in elements:
+            if 'source' in element['data']:
+                if element['data']['source'] == node_id or element['data']['target'] == node_id:
+                    elements.remove(element)
+            elif element['data']['id'] == node_id:
                 elements.remove(element)
-        elif element['data']['id'] == node_id:
-            elements.remove(element)
     # elements = [element for element in elements if element['data']['id'] != node_id and element['data']['source'] != node_id and element['data']['target'] != node_id]
     return elements
 
