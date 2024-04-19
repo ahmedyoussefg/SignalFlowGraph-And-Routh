@@ -45,7 +45,8 @@ app.layout = html.Div([
         html.Button('Add Node', id='add-node-button')
     ]),
     html.Div([
-        html.Button('Solve', id='solve-button')
+        html.Button('Solve', id='solve-button', style={'display': 'inline-block', 'background-color': 'green', 'color': 'white', 'border': 'none', 'border-radius': '5px', 'cursor': 'pointer'}),
+        html.Button('Delete Node', id='delete-node-button', style={'margin': '1vh', 'display': 'inline-block', 'background-color': 'red', 'color': 'white', 'border': 'none', 'border-radius': '5px', 'cursor': 'pointer'})
     ]),
     html.Div(id='overlay-container', style={'position': 'absolute', 'top': 0, 'left': 0, 'width': '100%', 'height': '100%', 'background-color': 'rgba(255, 255, 255, 0.5)', 'display': 'none'}, children=[
         
@@ -95,6 +96,26 @@ def add_node(n_clicks, node_name, elements):
         raise dash.exceptions.PreventUpdate
     new_node = {'data': {'id': node_name, 'label': node_name}}
     elements.append(new_node)
+    return elements
+
+# Callback for delete a node
+@callback(
+    Output('cytoscape', 'elements', allow_duplicate=True),
+    Input('delete-node-button', 'n_clicks'),
+    State('cytoscape', 'selectedNodeData'),
+    State('cytoscape', 'elements'),
+    prevent_initial_call=True)
+def delete_node(n_clicks, selected_nodes, elements):
+    if n_clicks is None or not selected_nodes:
+        raise dash.exceptions.PreventUpdate
+    node_id = selected_nodes[0]['id']
+    for element in elements:
+        if 'source' in element['data']:
+            if element['data']['source'] == node_id or element['data']['target'] == node_id:
+                elements.remove(element)
+        elif element['data']['id'] == node_id:
+            elements.remove(element)
+    # elements = [element for element in elements if element['data']['id'] != node_id and element['data']['source'] != node_id and element['data']['target'] != node_id]
     return elements
 
 def solve(elements):
