@@ -118,11 +118,10 @@ https://github.com/ahmedyoussefg/SignalFlowGraph-And-Routh/assets/108885178/98d0
 ## Main Modules
 
 - **SignalFlowGraph Class**: This class encapsulates all functionalities related to analyzing the signal flow graph. It includes methods for finding loops, forward paths, calculating gains, determining the overall transfer function and more.
+- **Dash Interactive GUI Module**:
+This module includes the GUI display functions and their implementation, utilizing python Dash Module, which is a Python framework for building web applications. It is built on top of Flask, Plotly. js, React and React Js. It enables you to build dashboards using pure Python.
+This module also utilizes Dash Cytoscape , which is a graph visualization component for creating easily customizable, high-performance, interactive, and web-based networks. It extends and renders Cytoscape.
 
-## Technologies Used for GUI
-
-- **Dash:** Python framework for building web applications.
-- **Cytoscape:** JavaScript library for graph visualization.
 
 ## Assumptions
 
