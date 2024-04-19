@@ -141,7 +141,11 @@ def parse_sympy_equation():
     except Exception as e:
         print("Error:", e)
         return None, None
-    
+
+def solve_eqn(parsed_eqn, symbols_dict):
+    """Solve the equation to find the values of the positive roots"""
+    solns = sp.solve(parsed_eqn, symbols_dict)
+    return solns
 
 def main():
     parsed_expression =  None
@@ -179,6 +183,11 @@ def main():
         print("Stability Check: System is Stable.")
     else:
         print("Stability Check: System is Unstable and has {} roots in the positive side of the S-plane.".format(stability))
-
+        count = 1
+        for i in solve_eqn(parsed_expression, symbols_dict):
+            i = sp.N(i)
+            if sp.re(i) > 0:
+                print("Root: {}".format(count), i)
+                count += 1
 if __name__ == "__main__":
     main()
