@@ -210,7 +210,7 @@ def parse_elements(elements):
         if 'source' in element['data']:
             source = element['data']['source']
             target = element['data']['target']
-            weight = int(element['data']['weight'])
+            weight = float(element['data']['weight'])
             if source in graph:
                 graph[source].append((target, weight))
             else:
