@@ -354,13 +354,13 @@ class SignalFlowGraph:
 
 if __name__ == '__main__':
     graph = {
-        1: [(2, 1)],  
-        2: [(3, -1), (5, 1)], 
-        3: [(4, 53)],
-        4: [(5, -1), (7, 1), (3, -1)],
-        5: [(6, -144)],
-        6: [(3, 1), (5, -1), (7, 1)],
-        7: [(2, -1)]
+        '1': [('2', 1)],  
+        '2': [('3', -1), ('5', 1)], 
+        '3': [('4', 53)],
+        '4': [('5', -1), ('7', 1), ('3', -1)],
+        '5': [('6', -144)],
+        '6': [('3', 1), ('5', -1), ('7', 1)],
+        '7': [('2', -1)]
     }
 
     sfg = SignalFlowGraph(graph)
@@ -401,7 +401,7 @@ if __name__ == '__main__':
     print("Forward Path Gains:", sfg.calculate_forward_path_gains()) # This is extra output
 
     # (you can print the input and output nodes using the below code)
-    print(f"Input Node: {sfg.input_node}, Output Node: {sfg.output_node}")
+    print(f"Input Node: {sfg.find_input_node()}, Output Node: {sfg.find_output_node()}")
 
     # To print the overall transfer function
     print("Overall Transfer Function:", sfg.calculate_overall_transfer_function()) # Final Result (Most important)
