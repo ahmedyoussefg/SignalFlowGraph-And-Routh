@@ -1,7 +1,7 @@
 from dash import Dash, html, dcc, Input, Output, State, callback
 import dash
 import dash_cytoscape as cyto
-from SignalFlowGraph import SignalFlowGraph as sfg
+from SignalFlowGraph import SignalFlowGraph
 cyto.load_extra_layouts()
 
 app = Dash(__name__)
@@ -122,7 +122,7 @@ def delete_node(n_clicks, selected_nodes, elements):
 def solve(elements):
     graph = parse_elements(elements)
 
-    sfg_solve = sfg(graph)
+    sfg_solve = SignalFlowGraph(graph)
     forward_paths = sfg_solve.get_forward_paths()
     loops = sfg_solve.find_loops()
     all_non_touching_loops = sfg_solve.get_all_non_touching_loops()
@@ -132,12 +132,16 @@ def solve(elements):
     forward_paths_delta = sfg_solve.calculate_paths_delta()
 
     output_divs = []
-    overall_transfer_function = sfg_solve.calculate_overall_transfer_function()
-    overall_delta = sfg_solve.calculate_overall_delta()
+    overall_transfer_function = round(sfg_solve.calculate_overall_transfer_function(), 4)
+    overall_delta = round(sfg_solve.calculate_overall_delta(), 4)
+    input_node = sfg_solve.find_input_node()
+    output_node = sfg_solve.find_output_node()
 
     output_divs.append(html.Div([
-    html.Div(f'Overall Transfer Function: {overall_transfer_function}', style={'font-weight': 'bold', 'display': 'block'}),
-    html.Div(f'Overall Delta: {overall_delta}', style={'font-weight': 'bold'})
+        html.Div(f'Input Node: {input_node}', style={'font-weight': 'bold', 'display': 'block'}),
+        html.Div(f'Output Node: {output_node}', style={'font-weight': 'bold', 'display': 'block'}),
+        html.Div(f'Overall Transfer Function: {overall_transfer_function}', style={'font-weight': 'bold', 'display': 'block'}),
+        html.Div(f'Overall Delta: {overall_delta}', style={'font-weight': 'bold'})
     ]))
 
 
@@ -145,8 +149,8 @@ def solve(elements):
     forward_path_html.append(html.Div(f'Number Of Forward Paths: {len(forward_paths)}', style={'font-weight': 'bold'}))  # Bold text
     for i, path in enumerate(forward_paths):
         forward_path_html.append(html.Div(f'Forward Path {i+1}: {path}'))
-        forward_path_html.append(html.Div(f'Gain: {forward_paths_gains[i]}'))
-        forward_path_html.append(html.Div(f'Delta: {forward_paths_delta[i]}'))
+        forward_path_html.append(html.Div(f'Gain: {round(forward_paths_gains[i], 4)}'))
+        forward_path_html.append(html.Div(f'Delta: {round(forward_paths_delta[i], 4)}'))
         forward_path_html.append(html.Div(html.Hr())) 
 
     output_divs.append(html.Div(forward_path_html, style = {'border': '1px solid black', 'border-radius': '2vh', 'padding': '1vh', 'background-color': 'rgba(180, 230, 197, 0.5)', 'height': '10%'}))
@@ -156,7 +160,7 @@ def solve(elements):
     loops_html.append(html.Div(f'Number Of Loops: {len(loops)}', style={'font-weight': 'bold'}))
     for i, loop in enumerate(loops):
         loops_html.append(html.Div(f'Loop {i+1}: {loop}'))
-        loops_html.append(html.Div(f'Gain: {loop_gains[i]}'))
+        loops_html.append(html.Div(f'Gain: {round(loop_gains[i], 4)}'))
         loops_html.append(html.Div(html.Hr()))
 
     output_divs.append(html.Div(loops_html, style={'flex-shrink':'3', 'border': '1px solid black', 'border-radius': '2vh', 'padding': '1vh', 'height': '10%'}))
