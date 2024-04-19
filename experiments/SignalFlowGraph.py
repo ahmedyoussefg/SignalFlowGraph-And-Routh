@@ -143,14 +143,14 @@ class SignalFlowGraph:
         for node in self.graph:    
             if indegree[node]==0:
                 return node
-        return 1
+        return '1'
     def find_output_node(self):
         if self.output_node != None:
             return self.output_node
         for node in self.graph: # Assuming there is only one output node
             if self.graph[node] == []:
                 return node
-        return self.number_of_nodes
+        return str(self.number_of_nodes)
 
     def get_forward_paths(self):
         if self.forward_paths != None:
