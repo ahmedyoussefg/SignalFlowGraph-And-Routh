@@ -154,40 +154,45 @@ def main():
         if(not parsed_expression):
             print("Please enter a valid expression.")
 
-    s = sp.symbols('s')
     substituted_expression = parsed_expression.subs(symbols_dict)
     print(sp.latex(substituted_expression))
     dict = substituted_expression.as_coefficients_dict()
     new_dict = normalize_dict(dict)
     # checking the powers and signs
+    stability = 0
     if not check_powers(new_dict.keys()):
         print("System is Unstable: Missing powers of s.")
-        return
-    if not check_signs(new_dict.values()):
+        print("Finding the number of roots.")
+        print("________________________________________")
+        stability = -1
+    elif not check_signs(new_dict.values()):
         print("System is Unstable: Coefficients alternate signs.")
         print("Finding the number of roots.")
         print("________________________________________")
-
-    matrix = construct_routh_array(new_dict)
-    routh_matrix, state = fill_routh_array(matrix)
-    stability = check_stability(routh_matrix)
-    if(state == -1):
-        print("System has a zero row in the Routh array ... Checking for Marginal Stability.")
-    elif(state == 0):
-        print("System has a zero division error in the Routh array.")
+        stability = -1
     else:
-        print("System has no zero division error in the Routh array.")
-    print("Final Matrix: ", routh_matrix)
+        matrix = construct_routh_array(new_dict)
+        routh_matrix, state = fill_routh_array(matrix)
+        stability = check_stability(routh_matrix)
+        if(state == -1):
+            print("System has a zero row in the Routh array ... Checking for Marginal Stability.")
+        elif(state == 0):
+            print("System has a zero division error in the Routh array.")
+        else:
+            print("System has no zero division error in the Routh array.")
+        print("Final Matrix: ", routh_matrix)
+        
+        if(stability == 0):
+            print("Stability Check: System is Stable.")
+        else:
+            print("Stability Check: System is Unstable and has {} roots in the positive side of the S-plane.".format(stability))
     
-    if(stability == 0):
-        print("Stability Check: System is Stable.")
-    else:
-        print("Stability Check: System is Unstable and has {} roots in the positive side of the S-plane.".format(stability))
+    if stability:
         count = 1
         for i in solve_eqn(parsed_expression, symbols_dict):
             i = sp.N(i)
             if sp.re(i) > 0:
-                print("Root: {}".format(count), i)
+                print("Root {}: ".format(count), i)
                 count += 1
 if __name__ == "__main__":
     main()
