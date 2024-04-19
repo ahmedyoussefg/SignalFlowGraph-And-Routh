@@ -54,6 +54,7 @@ This Signal Flow Graph (SFG) program is designed to analyze and calculate variou
 
 
 # User Guide
+https://github.com/ahmedyoussefg/SignalFlowGraph-And-Routh/assets/108885178/98d02486-90c3-4ded-b427-159d258c5a6c
 - User guide video link (higher quality): https://drive.google.com/file/d/1YHF4xYRUhUy3GThPO1i_8fbL0PY5LGIC/view?usp=drive_link
 
 ### Selecting Nodes:
