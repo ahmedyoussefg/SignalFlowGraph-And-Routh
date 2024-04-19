@@ -5,7 +5,8 @@ from SignalFlowGraph import SignalFlowGraph
 cyto.load_extra_layouts()
 
 app = Dash(__name__)
-
+app.title='Signal Flow Solver'
+app._favicon='./assets/icon/favicon.ico'
 # Initial elements
 elements = [
     {'data': {'id': 'A', 'label': 'A'}},
@@ -79,7 +80,10 @@ def add_edge(n_clicks, selected_nodes, weight, elements):
     if n_clicks is None or not selected_nodes or weight is None:
         raise dash.exceptions.PreventUpdate
     source = selected_nodes[0]['label']
-    target = selected_nodes[1]['label']
+    if len(selected_nodes) >= 2:
+        target = selected_nodes[1]['label']
+    else:
+        target=source
     new_edge = {'data': {'source': source, 'target': target, 'weight': weight}}
     elements.append(new_edge)
     return elements
