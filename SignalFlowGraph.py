@@ -73,7 +73,7 @@ class SignalFlowGraph:
                 for loop in self.loops:
                     curr = loop[:-1]
                     mypath=path[:]
-                    if self.are_circular_arrays(curr,mypath):
+                    if self.are_circular_arrays(curr,mypath) and self.are_same_elements(curr,mypath):
                         skip=True
                         break
 
@@ -81,6 +81,9 @@ class SignalFlowGraph:
                     self.loops.append(path + [start] )
             elif child not in path:
                 self.dfs_for_loops(child,start, path[:])
+
+    def are_same_elements(self,arr1,arr2):
+        return sorted(arr1)==sorted(arr2)
 
     def are_circular_arrays(self,arr1, arr2):
         # Concatenate arr1 with itself
@@ -352,17 +355,36 @@ class SignalFlowGraph:
 #     3: [(2, 1.5), (1, 1), (3, 0.5)],
 # }
 
+# graph={
+#     'A':[('B',1)],
+#     'B':[('C',3.2),('H',1.5),('D',1.5)],
+#     'C':[('D',1.5),('B',4.3)],
+#     'D':[('C',-0.5),('E',5)],
+#     'E':[('D',1.25),('G',3),('F',2)],
+#     'F':[('E',-1),('G',4.5)],
+#     'G':[('G',3),('F',1.2),('H',1.3)],
+#     'H':[]
+# }
 if __name__ == '__main__':
-    graph = {
-        '1': [('2', 1)],  
-        '2': [('3', -1), ('5', 1)], 
-        '3': [('4', 53)],
-        '4': [('5', -1), ('7', 1), ('3', -1)],
-        '5': [('6', -144)],
-        '6': [('3', 1), ('5', -1), ('7', 1)],
-        '7': [('2', -1)]
+    # graph = {
+    #     '1': [('2', 1)],  
+    #     '2': [('3', -1), ('5', 1)], 
+    #     '3': [('4', 53)],
+    #     '4': [('5', -1), ('7', 1), ('3', -1)],
+    #     '5': [('6', -144)],
+    #     '6': [('3', 1), ('5', -1), ('7', 1)],
+    #     '7': [('2', -1)]
+    # }
+    graph={
+        'A':[('B',1)],
+        'B':[('C',3.2),('H',1.5),('D',1.5)],
+        'C':[('D',1.5),('B',4.3)],
+        'D':[('C',-0.5),('E',5)],
+        'E':[('D',1.25),('G',3),('F',2)],
+        'F':[('E',-1),('G',4.5)],
+        'G':[('G',3),('F',1.2),('H',1.3)],
+        'H':[]
     }
-
     sfg = SignalFlowGraph(graph)
     
     # To print list of forward paths
