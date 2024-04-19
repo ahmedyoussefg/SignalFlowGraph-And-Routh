@@ -52,7 +52,8 @@ class SignalFlowGraph:
         if self.loops != None:
             return self.loops
         self.loops=[]
-        for node in range(1,self.number_of_nodes+1):
+        # for node in range(1,self.number_of_nodes+1):
+        for node in self.graph:
             if not self.visited[node]:
                 # print("Starting DFS from node", node)
                 self.dfs_for_loops(node, node, [])
@@ -139,7 +140,7 @@ class SignalFlowGraph:
             for edge in self.graph[node]:
                 indegree[edge[0]]+=1
 
-        for node in range(1,self.number_of_nodes+1):    
+        for node in self.graph:    
             if indegree[node]==0:
                 return node
         return 1
